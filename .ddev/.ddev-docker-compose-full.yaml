@@ -1,0 +1,282 @@
+name: ddev-blogapp
+networks:
+    ddev_default:
+        external: true
+        name: ddev_default
+    default:
+        labels:
+            com.ddev.platform: ddev
+        name: ddev-blogapp_default
+services:
+    db:
+        build:
+            args:
+                BASE_IMAGE: ddev/ddev-dbserver-mariadb-10.11:v1.24.2
+                gid: "20"
+                uid: "501"
+                username: nitsan3
+            context: /Users/nitsan3/www/Projects/blogApp/.ddev/.dbimageBuild
+            dockerfile: Dockerfile
+        cap_add:
+            - SYS_NICE
+        command: []
+        container_name: ddev-blogApp-db
+        environment:
+            BITNAMI_VOLUME_DIR: ""
+            COLUMNS: "164"
+            DDEV_DATABASE: mariadb:10.11
+            DDEV_DATABASE_FAMILY: mysql
+            DDEV_GOARCH: arm64
+            DDEV_GOOS: darwin
+            DDEV_HOSTNAME: blogapp.ddev.site
+            DDEV_PHP_VERSION: "8.3"
+            DDEV_PRIMARY_URL: https://blogapp.ddev.site
+            DDEV_PROJECT: blogApp
+            DDEV_PROJECT_TYPE: laravel
+            DDEV_ROUTER_HTTP_PORT: "80"
+            DDEV_ROUTER_HTTPS_PORT: "443"
+            DDEV_SITENAME: blogApp
+            DDEV_TLD: ddev.site
+            DOCKER_IP: 127.0.0.1
+            HOST_DOCKER_INTERNAL_IP: ""
+            IS_DDEV_PROJECT: "true"
+            LINES: "18"
+            MYSQL_HISTFILE: /mnt/ddev-global-cache/mysqlhistory/blogApp-db/mysql_history
+            PAGER: less -SFX
+            PGDATABASE: db
+            PGHOST: 127.0.0.1
+            PGPASSWORD: db
+            PGUSER: db
+            POSTGRES_DB: db
+            POSTGRES_PASSWORD: db
+            POSTGRES_USER: db
+            TZ: Asia/Kolkata
+            USER: nitsan3
+        healthcheck:
+            interval: 1s
+            retries: 70
+            start_interval: 1s
+            start_period: 2m0s
+            timeout: 1m10s
+        hostname: blogApp-db
+        image: ddev/ddev-dbserver-mariadb-10.11:v1.24.2-blogApp-built
+        labels:
+            com.ddev.app-type: laravel
+            com.ddev.approot: /Users/nitsan3/www/Projects/blogApp
+            com.ddev.platform: ddev
+            com.ddev.site-name: blogApp
+        networks:
+            ddev_default: null
+            default: null
+        ports:
+            - host_ip: 127.0.0.1
+              mode: ingress
+              protocol: tcp
+              target: 3306
+        restart: "no"
+        stop_grace_period: 1m0s
+        user: "501:20"
+        volumes:
+            - source: database
+              target: /var/lib/mysql
+              type: volume
+              volume:
+                nocopy: true
+            - bind:
+                create_host_path: true
+              source: /Users/nitsan3/www/Projects/blogApp/.ddev
+              target: /mnt/ddev_config
+              type: bind
+            - bind:
+                create_host_path: true
+              source: /Users/nitsan3/www/Projects/blogApp/.ddev/db_snapshots
+              target: /mnt/snapshots
+              type: bind
+            - source: ddev-global-cache
+              target: /mnt/ddev-global-cache
+              type: volume
+              volume: {}
+        working_dir: /home/nitsan3
+    phpmyadmin:
+        container_name: ddev-blogApp-phpmyadmin
+        depends_on:
+            db:
+                condition: service_started
+                required: true
+        environment:
+            HTTP_EXPOSE: 8036:80
+            HTTPS_EXPOSE: 8037:80
+            PMA_HOST: db
+            PMA_PASSWORD: root
+            PMA_PORT: "3306"
+            PMA_USER: root
+            UPLOAD_LIMIT: 4000M
+            VIRTUAL_HOST: blogapp.ddev.site
+        expose:
+            - "80"
+        healthcheck:
+            interval: 2m0s
+            retries: 1
+            timeout: 2s
+        image: phpmyadmin:5.2.0
+        labels:
+            com.ddev.approot: /Users/nitsan3/www/Projects/blogApp
+            com.ddev.site-name: blogApp
+        networks:
+            ddev_default: null
+            default: null
+        restart: "no"
+        volumes:
+            - bind:
+                create_host_path: true
+              source: /Users/nitsan3/www/Projects/blogApp/.ddev
+              target: /mnt/ddev_config
+              type: bind
+            - source: ddev-global-cache
+              target: /mnt/ddev-global-cache
+              type: volume
+              volume: {}
+        working_dir: /root
+    web:
+        build:
+            args:
+                BASE_IMAGE: ddev/ddev-webserver:v1.24.2
+                DDEV_DATABASE: mariadb:10.11
+                DDEV_PHP_VERSION: "8.3"
+                gid: "20"
+                uid: "501"
+                username: nitsan3
+            context: /Users/nitsan3/www/Projects/blogApp/.ddev/.webimageBuild
+            dockerfile: Dockerfile
+        cap_add:
+            - SYS_PTRACE
+        command:
+            - /pre-start.sh
+        container_name: ddev-blogApp-web
+        environment:
+            COLUMNS: "164"
+            COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+            COREPACK_HOME: /mnt/ddev-global-cache/corepack
+            DDEV_COMPOSER_ROOT: /var/www/html
+            DDEV_DATABASE: mariadb:10.11
+            DDEV_DATABASE_FAMILY: mysql
+            DDEV_DOCROOT: public
+            DDEV_FILES_DIR: ""
+            DDEV_FILES_DIRS: ""
+            DDEV_GOARCH: arm64
+            DDEV_GOOS: darwin
+            DDEV_HOSTNAME: blogapp.ddev.site
+            DDEV_MUTAGEN_ENABLED: "true"
+            DDEV_PHP_VERSION: "8.3"
+            DDEV_PRIMARY_URL: https://blogapp.ddev.site
+            DDEV_PROJECT: blogApp
+            DDEV_PROJECT_TYPE: laravel
+            DDEV_ROUTER_HTTP_PORT: "80"
+            DDEV_ROUTER_HTTPS_PORT: "443"
+            DDEV_SITENAME: blogApp
+            DDEV_TLD: ddev.site
+            DDEV_VERSION: v1.24.2
+            DDEV_WEB_ENTRYPOINT: /mnt/ddev_config/web-entrypoint.d
+            DDEV_WEBSERVER_TYPE: nginx-fpm
+            DDEV_XDEBUG_ENABLED: "false"
+            DEPLOY_NAME: local
+            DOCKER_IP: 127.0.0.1
+            DOCROOT: public
+            DRUSH_OPTIONS_URI: https://blogapp.ddev.site
+            HOST_DOCKER_INTERNAL_IP: ""
+            HTTP_EXPOSE: 80:80,8025:8025
+            HTTPS_EXPOSE: 443:80,8026:8025
+            IS_DDEV_PROJECT: "true"
+            LINES: "18"
+            MYSQL_HISTFILE: /mnt/ddev-global-cache/mysqlhistory/blogApp-web/mysql_history
+            NODE_EXTRA_CA_CERTS: /mnt/ddev-global-cache/mkcert/rootCA.pem
+            PAGER: less -SFX
+            PGDATABASE: db
+            PGHOST: db
+            PGPASSWORD: db
+            PGUSER: db
+            PHP_IDE_CONFIG: serverName=blogApp.ddev.site
+            SSH_AUTH_SOCK: /home/.ssh-agent/socket
+            START_SCRIPT_TIMEOUT: "30"
+            TZ: Asia/Kolkata
+            USER: nitsan3
+            VIRTUAL_HOST: blogapp.ddev.site
+            npm_config_cache: /mnt/ddev-global-cache/npm
+        external_links:
+            - ddev-router:blogapp.ddev.site
+        healthcheck:
+            interval: 1s
+            retries: 70
+            start_interval: 1s
+            start_period: 2m0s
+            timeout: 1m10s
+        hostname: blogApp-web
+        image: ddev/ddev-webserver:v1.24.2-blogApp-built
+        labels:
+            com.ddev.app-type: laravel
+            com.ddev.approot: /Users/nitsan3/www/Projects/blogApp
+            com.ddev.platform: ddev
+            com.ddev.site-name: blogApp
+        networks:
+            ddev_default: null
+            default: null
+        ports:
+            - host_ip: 127.0.0.1
+              mode: ingress
+              protocol: tcp
+              target: 80
+            - host_ip: 127.0.0.1
+              mode: ingress
+              protocol: tcp
+              target: 443
+        restart: "no"
+        user: "501:20"
+        volumes:
+            - source: project_mutagen
+              target: /var/www
+              type: volume
+              volume:
+                nocopy: true
+            - source: project_mutagen
+              target: /tmp/project_mutagen
+              type: volume
+              volume:
+                nocopy: true
+            - bind:
+                create_host_path: true
+              read_only: true
+              source: /Users/nitsan3/www/Projects/blogApp/.ddev
+              target: /mnt/ddev_config
+              type: bind
+            - bind:
+                create_host_path: true
+              source: /Users/nitsan3/www/Projects/blogApp/.ddev/xhprof
+              target: /usr/local/bin/xhprof
+              type: bind
+            - bind:
+                create_host_path: true
+              source: /Users/nitsan3/www/Projects/blogApp/.git
+              target: /var/www/html/.git
+              type: bind
+            - source: ddev-global-cache
+              target: /mnt/ddev-global-cache
+              type: volume
+              volume: {}
+            - source: ddev-ssh-agent_socket_dir
+              target: /home/.ssh-agent
+              type: volume
+              volume: {}
+        working_dir: /var/www/html/
+volumes:
+    database:
+        external: true
+        name: blogApp-mariadb
+    ddev-global-cache:
+        external: true
+        name: ddev-global-cache
+    ddev-ssh-agent_socket_dir:
+        external: true
+        name: ddev-ssh-agent_socket_dir
+    project_mutagen:
+        external: true
+        name: blogApp_project_mutagen
