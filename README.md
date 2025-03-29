@@ -36,6 +36,56 @@ Fot the view, we need to create a new file in resources/views/ directory.
 
 [View resources/views/list.blade.php](resources/views/list.blade.php)
 
+## Blade Template
+
+Use:
+
+```php
+{{ "Hello World"}}
+{{ "<h1>Hello World</h1>" }} -> It will print as string.
+{!! "<h1>Hello World</h1>" !!} -> Now it will apply the heading h1 tag.
+
+@php
+    $name = "John";
+    echo "Hello $name";
+@endphp
+
+Main Directives:
+ - @include
+ - @extends
+ - @section
+ - @yield
+
+@include ('pages.header') -> It will include the header file inside pages folder.
+
+@include ('pages.header', [$status="Success"]) -> Pass with arguments.
+
+@includeWhen(true,'pages.header', [$status="Success"]) -> It will include the header file if the condition is TRUE.
+
+@includeUnless(true,'pages.header', [$status="Success"]) -> It will include the header file if the condition is FALSE.
+```
+
+## Controller 
+
+```php
+Create a new controller by command: php artisan make:controller BlogController
+
+Route::get('/list', function () {
+    return view('list');
+});
+
+Route::get('/blog', [BlogController::class, 'list']);
+```
+
+## Creating a Database Table 
+```php
+php artisan make:migration create_blog_table
+
+[Created Dabase file](database/migrations/2025_03_29_113732_create_blog_table.php)
+
+php artisan migrate [It will create the table in database]
+```
+
 ## Definition 
 
-- [A blog CRUD operation allows users to create, read (with filtration and pagination), update & delete blog posts.](requirements.md)
+- [A blog CRUD operation allows users to create, read (with filtration and pagination), update & delete blog posts.](Requirements.md)
